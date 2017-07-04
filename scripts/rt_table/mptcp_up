@@ -27,9 +27,12 @@ if [ $DHCP4_IP_ADDRESS ]; then
 	ip route add table $DEVICE_IFACE default via $DHCP4_ROUTERS dev $DEVICE_IFACE
 	ip rule add from $DHCP4_IP_ADDRESS table $DEVICE_IFACE
 else
-	# PPP-interface
-	IPADDR=`echo $IP4_ADDRESS_0 | cut -d \   -f 1 | cut -d / -f 1`
-	ip route add table $DEVICE_IFACE default dev $DEVICE_IP_IFACE scope link
-	ip rule add from $IPADDR table $DEVICE_IFACE
+        # static ip
+        IPADDR=`echo $IP4_ADDRESS_0 | cut -d \   -f 1 | cut -d / -f 1`
+	SUBNET=`echo $IP4_ADDRESS_0 | cut -d \   -f 1 | cut -d / -f 2`
+	NETWITHMASK=`/usr/bin/ipcalc 192.168.1.54 | grep Network | cut -d" " -f 4`
+        ip route add table $DEVICE_IFACE to $NETWITHMASK dev $DEVICE_IFACE scope link
+        ip route add table $DEVICE_IFACE default via $IP4_GATEWAY dev $DEVICE_IP_IFACE 
+        ip rule add from $IPADDR table $DEVICE_IFACE
 fi
 
